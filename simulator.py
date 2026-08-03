@@ -1,6 +1,6 @@
-# simulator.py
 from grid_game import GridHuntGame
 from agent import GreedyGridAgent
+
 
 def run_grid_hunt():
     env = GridHuntGame()
@@ -14,6 +14,7 @@ def run_grid_hunt():
         print(f"Pos: {percept['agent_pos']} | Food Left: {percept['remaining_food']} | Score: {percept['score']}")
 
     print(f"\nGame Over! Final Score: {env.score} after {env.steps} steps.")
+
 
 if __name__ == "__main__":
     run_grid_hunt()

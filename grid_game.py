@@ -1,4 +1,3 @@
-# grid_game.py
 import random
 
 
@@ -10,31 +9,31 @@ class GridHuntGame:
         self.height = height
         self.agent_pos = [0, 0]  # Starting position (x, y)
 
-        # Place a few random food pellets and obstacles (walls)
-        self.food_positions = {[1, 2], [2, 3], [3, 0], [2, 1]}
-        self.walls = {[1, 1], [2, 2]}
+        self.food_positions = {(1, 2), (2, 3), (3, 0), (2, 1)}
+        self.walls = {(1, 1), (2, 2)}
 
         self.score = 0
         self.steps = 0
 
-   def get_percept(self, agent) -> dict:
-    x, y = self.agent_pos
+    def get_percept(self, agent) -> dict:
+        x, y = self.agent_pos
+        front_cell = (x, y + 1)
 
-    # Check the cell ahead (assuming the agent faces UP)
-    front_cell = (x, y + 1)
+        wall_ahead = (
+            front_cell in self.walls or
+            front_cell[0] < 0 or
+            front_cell[0] >= self.width or
+            front_cell[1] < 0 or
+            front_cell[1] >= self.height
+        )
 
-    wall_ahead = (
-        front_cell in self.walls or
-        front_cell[0] < 0 or                                       //Implementation 1.1 Lab2
-        front_cell[0] >= self.width or
-        front_cell[1] < 0 or
-        front_cell[1] >= self.height
-    )
-
-    return {
-        'wall_ahead': wall_ahead,
-        'food_here': tuple(self.agent_pos) in self.food_positions
-    }
+        return {
+            'agent_pos': list(self.agent_pos),
+            'wall_ahead': wall_ahead,
+            'food_here': tuple(self.agent_pos) in self.food_positions,
+            'remaining_food': len(self.food_positions),
+            'score': self.score
+        }
 
     def execute_action(self, agent, action: str):
         self.steps += 1
@@ -49,17 +48,15 @@ class GridHuntGame:
         elif action == 'Right':
             new_pos[0] = min(self.width - 1, new_pos[0] + 1)
 
-        # Check collision with walls
         if tuple(new_pos) in self.walls:
-            self.score -= 5  # Penalty for hitting a wall
+            self.score -= 5
         else:
             self.agent_pos = new_pos
 
-        # Check if eating food
         tuple_pos = tuple(self.agent_pos)
         if tuple_pos in self.food_positions:
             self.food_positions.remove(tuple_pos)
-            self.score += 20  # Reward for eating food pellet
+            self.score += 20
 
     def is_done(self) -> bool:
         return len(self.food_positions) == 0 or self.steps >= 20
